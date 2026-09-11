@@ -15,7 +15,7 @@ sndscene_err = create_scene(snd_err);
 
 % Editable parameters
 editable('fix_window','fix_wait','fix_hold','cue_period', ...
-         'choice_wait','choice_hold','iti','reward');
+    'choice_wait','choice_hold','iti','reward');
 fix_window     = 3;
 fix_window_pic = [8 6];
 fix_wait       = 5000;
@@ -147,7 +147,7 @@ end
 % Scene 3
 if error_type == 0
     run_scene(scene3, CHOICE_ON);
-
+    
     % Robust RT (mt.RT -> fth_choice.RT -> AcquiredTime)
     rt_choice = mt.RT;
     if isempty(rt_choice) || isnan(rt_choice)
@@ -160,7 +160,7 @@ if error_type == 0
         rt_choice = NaN;
     end
     rt = rt_choice;
-
+    
     if ~fth_choice.Success
         error_type = 1;
     else
@@ -181,9 +181,9 @@ if error_type ~= 0 || isnan(chosen_id)
 else
     rwd = reward_ms(chosen_id);
     puf = puff_ms(chosen_id);
-
+    
     run_scene(sndscene_cor);
-
+    
     if chosen_id >= 1 && chosen_id <= 3
         num_pulses = 1;
     elseif chosen_id >= 4 && chosen_id <= 6
@@ -191,15 +191,8 @@ else
     else
         num_pulses = 3;
     end
-
-    for k = 1:num_pulses
-        idle(150);
-        goodmonkey(reward, 'numreward', 1, 'eventmarker', REWARD);
-        if k < num_pulses
-            idle(200);
-        end
-    end
-
+    
+    % Puff first
     if puf > 0
         if puf <= 150
             ttl1.Duration = puf;
@@ -209,12 +202,22 @@ else
             ttl1.Duration = 150;
             eventmarker(PUFF);
             run_scene(scene_ttl1);
-
+            
             idle(100);
-
+            
             ttl2.Duration = min(150, puf - 150);
             eventmarker(PUFF);
             run_scene(scene_ttl2);
+        end
+    end
+    
+    % Reward after puff
+    for k = 1:num_pulses
+        idle(150);
+        goodmonkey(reward, 'numreward', 1, 'eventmarker', REWARD);
+        
+        if k < num_pulses
+            idle(200);
         end
     end
 end
